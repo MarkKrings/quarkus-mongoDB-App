@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Fruit REST service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+        var app = angular.module("UserManagement", []);
+
+        //Controller Part
+        app.controller("UserManagementController", function ($scope, $http) {
+
+            //Initialize page with default data which is blank in this example
+            $scope.user = [];
+
+            $scope.form = {
+                name: "",
+                description: ""
+            };
+
+            //Now load the data from server
+            _refreshPageData();
+
+            //HTTP POST methods for add fruits
+            $scope.add = function () {
+                var data = { "name": $scope.form.name, "password": $scope.form.password, "role": $scope.form.role};
+
+                $http({
+                    method: "POST",
+                    url: '/user',
+                    data: angular.toJson(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(_success, _error);
+            };
+
+            //HTTP POST methods for delete fruits
+            $scope.delete = function () {
+                var data = { "name": $scope.form.name, "password": $scope.form.password, "role": $scope.form.role };
+
+                $http({
+                    method: "DELETE",
+                    url: '/user',
+                    data: angular.toJson(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(_success, _error);
+            };
+
+            /* Private Methods */
+            //HTTP GET- get all fruits collection
+            function _refreshPageData() {
+                $http({
+                    method: 'GET',
+                    url: '/user'
+                }).then(function successCallback(response) {
+                    $scope.user = response.data;
+                }, function errorCallback(response) {
+                    console.log(response.statusText);
+                });
+            }
+
+            function _success(response) {
+                _refreshPageData();
+                _clearForm();
+            }
+
+            function _error(response) {
+                alert(response.data.message || response.statusText);
+            }
+
+            //Clear the form
+            function _clearForm() {
+                $scope.form.name = "";
+                $scope.form.password = "";
+                $scope.form.role = "";
+            }
+        });
+    </script>
+</head>
+<body ng-app="UserManagement" ng-controller="UserManagementController">
+
+<div class="container">
+    <h1>REST Service - User</h1>
+
+    <h3>Add a User</h3>
+    <form ng-submit="add()">
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Name" ng-model="form.name" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Password" ng-model="form.password" size="60"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Role" ng-model="form.role" size="60"/></div>
+        </div>
+        <input type="submit" value="Save"/>
+    </form>
+
+    <h3>Delete a User</h3>
+    <form ng-submit="delete()">
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Name" ng-model="form.name" size="60"/></div>
+        </div>
+        <input type="submit" value="Delete">
+    </form>
+
+    <h3>User List</h3>
+    <div class="row">
+        <div class="col-2">Name</div>
+        <div class="col-4">Role</div>
+        <div class="col-5">Password</div>
+    </div>
+    <div class="row" ng-repeat="user in user">
+        <div class="col-2">{{ user.name }}</div>
+        <div class="col-4">{{ user.role }}</div>
+        <div class="col-5">{{ user.password }}</div>
+    </div>
+</div>
+
+</body>
+</html>
